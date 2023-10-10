@@ -1,10 +1,15 @@
 def find_number(sir):
-    number=0
+    number=""
+    ok=False
     for letter in sir:
         if letter.isdigit():
-            number+=int(letter)
-            number*=10
-    number//=10
-    return number
+            number+=letter
+            ok=True
+        elif ok:
+            break
+    if number:
+        return number
+    else:
+        return None
         
-print(find_number("abc123abc"))
+print(find_number("abbb1122ababab112abba1334"))
