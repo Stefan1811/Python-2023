@@ -22,9 +22,9 @@ def spiral_traversal(matrix):
     return ''.join(result)
 
 matrix=[
-        ["f","i","r","s"],      
-        ["n","_","l","t"],      
-        ["o","b","a","_"],    
-        ["h","t","y","p"] 
+        ["f","i","r"],      
+        ["n","_","l"],      
+        ["o","b","a"]
+       
 ]
 print(spiral_traversal(matrix))
