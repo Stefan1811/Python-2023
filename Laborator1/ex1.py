@@ -10,13 +10,9 @@ def cmmdc(array):
 
 array=[]
 while True:
-    try:
         number=int(input("Introduceti un numar pentru a calcula cmmdc"))
         if number==0:
             break
         array.append(number)
-    except ValueError:
-        print("Input ul nu este valid")
-
 rez=cmmdc(array)
 print(rez)
