@@ -5,9 +5,12 @@ def stadium_seats(matrix):
     for row in range(num_rows):
         for col in range(num_cols):
             current_seat=matrix[row][col]
-            for roww in range(row+1,num_rows):
-                if matrix[roww][col]<=current_seat:
-                   rez.append((roww,col))
+            can_see=True
+            for roww in range(row):
+                if matrix[roww][col]>=current_seat:
+                   can_see=False
+            if not can_see:
+                rez.append((row,col))
     return rez
 
 matrix=[
@@ -18,4 +21,4 @@ matrix=[
 rez=stadium_seats(matrix)
 print(rez)
 
-#[(2, 2), (3, 4), (2, 4)]
+#(2, 2), (2, 4), (3, 4)
