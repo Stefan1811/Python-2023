@@ -15,5 +15,5 @@ def order_tuples(*lists):
     return rez
 
 
-rez=order_tuples([1,2,3], [5,6,7], ["a", "b", "c"] )
+rez=order_tuples([1,2,3], [5,6,7], ["a", "b", "c","d"] )
 print(rez)
