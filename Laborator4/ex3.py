@@ -66,7 +66,7 @@ print(t_matrix)
 
 matrix2 = Matrix(3, 3)
 for i in range(3):
-    matrix2.set(i, i, 1)
+    matrix2.set(i, i, 2)
 
 result = matrix.multiply(matrix2)
 print(result)

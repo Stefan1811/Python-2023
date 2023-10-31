@@ -16,13 +16,13 @@ def dict_comp(dictonary1,dictonary2):
 
 dictonary1 = {
     'a': 1,
-    'b': [2, 3],
-    'c': {'x': 4, 'y': 5}
+    'b': [2, 3,{'t':2,'i':0}],
+    'c': {'x': 4, 'y': 6}
 }
 
 dictonary2 = {
     'a': 1,
-    'b': [2, 3],
+    'b': [2, 3,{'t':2,'i':8}],
     'c': {'x': 4, 'y': 6}
 }
 
