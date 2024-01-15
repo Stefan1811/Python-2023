@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import simpledialog
 import random
+import sys
 
 class Player:
     def __init__(self, name):
@@ -14,7 +15,7 @@ class ScrabbleGame:
     tl=[(1, 5), (1, 9), (5, 1), (5, 5), (5, 9), (5, 13), (9, 1), (9, 5), (9, 9), (9, 13),(13, 5), (13, 9)]
     dw=[(1, 1), (2, 2), (3, 3), (4, 4), (10, 10), (11, 11), (12, 12), (13, 13),(1, 13), (2, 12), (3, 11), (4, 10), (10, 4), (11, 3), (12, 2), (13, 1),(7, 7)]
     tw=[(0, 0), (0, 7), (0, 14), (7, 0), (7, 14), (14, 0), (14, 7), (14, 14)]
-    def __init__(self):
+    def __init__(self,dictionary):
         self.root = tk.Tk()
         self.root.title("Scrabble Game")
         self.board = [[' ' for _ in range(15)] for _ in range(15)]
@@ -33,7 +34,7 @@ class ScrabbleGame:
             'J': 8, 'K': 5, 'L': 1, 'M': 3, 'N': 1, 'O': 1, 'P': 3, 'Q': 10, 'R': 1,
             'S': 1, 'T': 1, 'U': 1, 'V': 4, 'W': 4, 'X': 8, 'Y': 4, 'Z': 10
         }
-        self.word_list = self.load_word_list("dictionary.txt")
+        self.word_list = self.load_word_list(dictionary)
         self.create_widgets()
        
     def switch_player(self):
@@ -135,7 +136,7 @@ class ScrabbleGame:
                 tiles.append(self.tiles.pop())
         return tiles
 
-    def load_word_list(self, file_path="dictionary.txt"):
+    def load_word_list(self, file_path):
         try:
             with open(file_path, "r") as file:
                 word_list = set(word.strip().upper() for word in file.readlines())
@@ -275,7 +276,8 @@ class ScrabbleGame:
         self.root.mainloop()
 
 if __name__ == "__main__":
-    scrabble_game = ScrabbleGame()
+    dictionary = sys.argv[1]
+    scrabble_game = ScrabbleGame(dictionary)
     scrabble_game.run()
     
     
