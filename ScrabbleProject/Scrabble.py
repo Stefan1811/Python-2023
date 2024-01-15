@@ -110,11 +110,17 @@ class ScrabbleGame:
        
 
     def change_letters(self):
+        old_rack = self.racks[self.active_player]
         number_of_tiles = len(self.racks[self.active_player])
         self.clear_rack()
         self.draw_new_tiles(number_of_tiles)
         self.update_rack()
+        for letter in old_rack:
+            self.tiles.append(letter)
         self.remaining_letters_label.config(text=f"Remaining Letters: {self.total_letters}")
+        print("Old letters")
+        print(old_rack)
+        print("All letters")
         print(self.tiles)
         print(self.total_letters)
     
@@ -179,28 +185,34 @@ class ScrabbleGame:
         self.create_rack()
 
     def place_word_on_board(self, word):
-        word_length = len(word)
-        word_direction = simpledialog.askstring("Word Direction", "Enter word direction (Horizontal/Vertical):").lower()
-        start_row, start_col = map(int, simpledialog.askstring("Starting Position", "Enter starting position (row, col):").split(','))
-
-        if word_direction == "horizontal":
-            if start_col + word_length > 15:
-                return False
-            for i, letter in enumerate(word):
-                if self.board[start_row][start_col + i] != ' ' and self.board[start_row][start_col + i] != letter:
-                    return False
-                self.board[start_row][start_col + i] = letter
-        elif word_direction == "vertical":
-            if start_row + word_length > 15:
-                return False
-            for i, letter in enumerate(word):
-                if self.board[start_row + i][start_col] != ' ' and self.board[start_row + i][start_col] != letter:
-                    return False
-                self.board[start_row + i][start_col] = letter
-        else:
+     word_length = len(word)
+     word_direction = simpledialog.askstring("Word Direction", "Enter word direction (Horizontal/Vertical):").lower()
+     start_row, start_col = map(int, simpledialog.askstring("Starting Position", "Enter starting position (row, col):").split(','))
+     if word_direction == "horizontal":
+        if start_col + word_length > 15:
             return False
-        self.update_board()
-        return True
+        for i, letter in enumerate(word):
+            if self.board[start_row][start_col + i] != ' ' and self.board[start_row][start_col + i] != letter:
+                if self.board[start_row][start_col + i] == letter:
+                    continue  
+                else:
+                    return False  
+            self.board[start_row][start_col + i] = letter
+     elif word_direction == "vertical":
+        if start_row + word_length > 15:
+            return False
+        for i, letter in enumerate(word):
+            if self.board[start_row + i][start_col] != ' ' and self.board[start_row + i][start_col] != letter:
+                if self.board[start_row + i][start_col] == letter:
+                    continue 
+                else:
+                    return False  
+            self.board[start_row + i][start_col] = letter
+     else:
+        return False
+
+     self.update_board()
+     return True
 
     def calculate_score(self, word):
      score = 0
@@ -217,7 +229,6 @@ class ScrabbleGame:
                         score += self.letter_scores.get(letter.upper(), 0) * 2
                     else:
                         score += self.letter_scores.get(letter.upper(), 0)
-
                     if (i, j) in self.tw:
                         word_multiplier *= 3
                     elif (i, j) in self.dw:
@@ -240,7 +251,6 @@ class ScrabbleGame:
         self.update_rack()
         self.remaining_letters_label.config(text=f"Remaining Letters: {self.total_letters}")
     
-
     def run(self):
         self.current_player = self.players[0]
         self.root.mainloop()
