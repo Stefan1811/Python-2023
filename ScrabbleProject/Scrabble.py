@@ -28,7 +28,6 @@ class ScrabbleGame:
         self.active_player=0  
         self.played_letters = []
         self.played_words = [] 
-        self.remain_letters=7 
         self.letter_scores = {
             'A': 1, 'B': 3, 'C': 3, 'D': 2, 'E': 1, 'F': 4, 'G': 2, 'H': 4, 'I': 1,
             'J': 8, 'K': 5, 'L': 1, 'M': 3, 'N': 1, 'O': 1, 'P': 3, 'Q': 10, 'R': 1,
@@ -60,6 +59,9 @@ class ScrabbleGame:
         self.word_entry_frame.grid(row=4, column=1, columnspan=15, padx=10, pady=10)
         self.create_word_entry()
 
+        self.player_turn_label = tk.Label(self.root, text=f"{self.players[0].name}'s turn", font=("Helvetica", 12))
+        self.player_turn_label.grid(row=0, column=18, columnspan=15)
+
         self.score_label = tk.Label(self.root, text=f"{self.players[0].name}'s Score: {self.players[0].score} | {self.players[1].name}'s Score: {self.players[1].score}", font=("Helvetica", 12))
         self.score_label.grid(row=1, column=18, columnspan=15)
 
@@ -67,8 +69,8 @@ class ScrabbleGame:
         self.change_letters_button.grid(row=3, column=1, columnspan=15, pady=10)
 
         self.remaining_letters_label = tk.Label(self.root, text=f"Remaining Letters: {self.total_letters}", font=("Helvetica", 12))
-        self.remaining_letters_label.grid(row=2, column=30, columnspan=15, pady=10)
-
+        self.remaining_letters_label.grid(row=3, column=18, columnspan=15, pady=10)
+    
     def create_word_entry(self):
         self.word_entry_label = tk.Label(self.word_entry_frame, text="Enter Word:")
         self.word_entry_label.grid(row=0, column=0, padx=5, pady=5)
@@ -94,7 +96,6 @@ class ScrabbleGame:
                 elif (i, j) in self.dl:
                      cell.configure(bg="lightblue")  #dublu litera
                 
-
     def create_rack(self):
         for i, letter in enumerate(self.racks[self.active_player]):
             tile = tk.Label(self.rack_frame, text=letter, width=2, height=1, relief="ridge", borderwidth=2)
@@ -108,7 +109,6 @@ class ScrabbleGame:
     def rack_tile_clicked(self, col):
         selected_tile = self.racks[self.active_player][col]
        
-
     def change_letters(self):
         old_rack = self.racks[self.active_player]
         number_of_tiles = len(self.racks[self.active_player])
@@ -122,8 +122,9 @@ class ScrabbleGame:
         print(old_rack)
         print("All letters")
         print(self.tiles)
+        random.shuffle(self.tiles)
         print(self.total_letters)
-    
+ 
     def draw_new_tiles(self, num_tiles):
         self.racks[self.active_player] += self.draw_tiles(num_tiles)
     
@@ -161,12 +162,20 @@ class ScrabbleGame:
                 self.played_letters=[]
                 self.played_words.append(word)
                 print(self.played_letters, self.played_words)
-                self.switch_player()
-                self.update_rack()
+                if self.current_player.score >= 50:
+                  self.end_game()
+                elif self.total_letters == 0 and not self.racks[self.active_player]:
+                  self.end_game()
+                else:
+                  self.switch_player()
+                  self.player_turn_label.config(text=f"{self.current_player.name}'s turn")
+                  self.update_rack()
+
             else:
                 messagebox.showwarning("Invalid Placement", "The word cannot be placed on the board.")
         else:
             messagebox.showwarning("Invalid Word", "The word is not valid or cannot be placed on the board.")
+        self.word_entry.delete(0, tk.END)
 
     def validate_word(self, word):
         return word.upper() in self.word_list
@@ -187,8 +196,8 @@ class ScrabbleGame:
     def place_word_on_board(self, word):
      word_length = len(word)
      word_direction = simpledialog.askstring("Word Direction", "Enter word direction (Horizontal/Vertical):").lower()
-     start_row, start_col = map(int, simpledialog.askstring("Starting Position", "Enter starting position (row, col):").split(','))
-     if word_direction == "horizontal":
+     start_row, start_col = map(int, simpledialog.askstring("Starting Position", "Enter starting position (row, col):",parent=self.root).split(','))
+     if word_direction == "h":
         if start_col + word_length > 15:
             return False
         for i, letter in enumerate(word):
@@ -198,7 +207,7 @@ class ScrabbleGame:
                 else:
                     return False  
             self.board[start_row][start_col + i] = letter
-     elif word_direction == "vertical":
+     elif word_direction == "v":
         if start_row + word_length > 15:
             return False
         for i, letter in enumerate(word):
@@ -250,7 +259,17 @@ class ScrabbleGame:
         self.racks[self.active_player] = self.draw_tiles(7)
         self.update_rack()
         self.remaining_letters_label.config(text=f"Remaining Letters: {self.total_letters}")
-    
+
+    def end_game(self):
+        winner = self.players[0] if self.players[0].score > self.players[1].score else self.players[1]
+        message = "Game over! Final scores:\n{}: {}\n{}: {}\n\nWinner: {} with score: {}".format(
+            self.players[0].name, self.players[0].score,
+            self.players[1].name, self.players[1].score,
+            winner.name, winner.score)
+
+        messagebox.showinfo("Game Over", message)
+        self.root.destroy()
+
     def run(self):
         self.current_player = self.players[0]
         self.root.mainloop()
