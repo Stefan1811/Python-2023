@@ -7,6 +7,7 @@ class Player:
     def __init__(self, name):
         self.name = name
         self.score = 0
+        
 
 class ScrabbleGame:
     dl=[(0, 3), (0, 11), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14), (6, 2), (6, 6), (6, 8),(6, 12), (7, 3), (7, 11), (8, 2), (8, 6), (8, 8), (8, 12), (11, 0), (11, 7), (11, 14),(12, 6), (12, 8), (14, 3), (14, 11)]
@@ -23,9 +24,11 @@ class ScrabbleGame:
         self.total_letters = 100
         self.current_player = None
         self.players = [Player("Player 1"), Player("Player 2")]
-        self.racks = [self.draw_tiles(7), self.draw_tiles(7)]  
+        self.racks = [self.draw_tiles(7), self.draw_tiles(7)]
+        self.active_player=0  
         self.played_letters = []
-        self.played_words = []  
+        self.played_words = [] 
+        self.remain_letters=7 
         self.letter_scores = {
             'A': 1, 'B': 3, 'C': 3, 'D': 2, 'E': 1, 'F': 4, 'G': 2, 'H': 4, 'I': 1,
             'J': 8, 'K': 5, 'L': 1, 'M': 3, 'N': 1, 'O': 1, 'P': 3, 'Q': 10, 'R': 1,
@@ -35,7 +38,11 @@ class ScrabbleGame:
         self.create_widgets()
        
     def switch_player(self):
+        print(self.racks[self.active_player])
         self.current_player = self.players[1] if self.current_player == self.players[0] else self.players[0]
+        self.active_player=1 if self.active_player==0 else 0
+        print(self.racks[self.active_player])
+
 
     def create_widgets(self):
         self.label = tk.Label(self.root, text="Scrabble Game", font=("Helvetica", 16))
@@ -89,32 +96,37 @@ class ScrabbleGame:
                 
 
     def create_rack(self):
-        for i, letter in enumerate(self.racks[0]):
+        for i, letter in enumerate(self.racks[self.active_player]):
             tile = tk.Label(self.rack_frame, text=letter, width=2, height=1, relief="ridge", borderwidth=2)
             tile.grid(row=0, column=i, padx=1, pady=1, ipadx=5, ipady=5)
             tile.bind("<Button-1>", lambda event, col=i: self.rack_tile_clicked(col))
+        print(self.racks[self.active_player])
 
     def cell_clicked(self, row, col):
         messagebox.showinfo("Cell Clicked", f"Clicked on cell at ({row}, {col})")
 
     def rack_tile_clicked(self, col):
-        selected_tile = self.racks[0][col]
-        if selected_tile.isalpha():
-            if selected_tile.isupper():
-                self.racks[0][col] = selected_tile.lower()
-            elif selected_tile.islower():
-                self.racks[0][col] = selected_tile.upper()
-            else:
-                self.racks[0][col] = selected_tile.title()
-            self.played_letters.append(selected_tile)
+        selected_tile = self.racks[self.active_player][col]
+       
 
     def change_letters(self):
+        number_of_tiles = len(self.racks[self.active_player])
         self.clear_rack()
-        self.draw_new_tiles(7)
-        self.total_letters -= 7
+        self.draw_new_tiles(number_of_tiles)
         self.update_rack()
-        self.total_letters += 7
         self.remaining_letters_label.config(text=f"Remaining Letters: {self.total_letters}")
+        print(self.tiles)
+        print(self.total_letters)
+    
+    def draw_new_tiles(self, num_tiles):
+        self.racks[self.active_player] += self.draw_tiles(num_tiles)
+    
+    def draw_tiles(self, num_tiles):
+        tiles = []
+        for _ in range(num_tiles):
+            if self.tiles:
+                tiles.append(self.tiles.pop())
+        return tiles
 
     def load_word_list(self, file_path="dictionary.txt"):
         try:
@@ -137,14 +149,14 @@ class ScrabbleGame:
                 self.score_label.config(
                     text=f"{self.players[0].name}'s Score: {self.players[0].score} | {self.players[1].name}'s Score: {self.players[1].score}")
                 messagebox.showinfo("Word Played", f"{self.current_player.name} played the word '{word}' with a score of {score}")
-                self.clear_rack()
-                self.draw_new_tiles(len(word))
+                self.clear_used_letters_from_rack(word)
                 self.total_letters -= len(word)
                 self.remaining_letters_label.config(text=f"Remaining Letters: {self.total_letters}")
-                self.update_rack()
-                self.played_letters = []
-                self.played_words.append(word) 
+                self.played_letters=[]
+                self.played_words.append(word)
+                print(self.played_letters, self.played_words)
                 self.switch_player()
+                self.update_rack()
             else:
                 messagebox.showwarning("Invalid Placement", "The word cannot be placed on the board.")
         else:
@@ -154,26 +166,17 @@ class ScrabbleGame:
         return word.upper() in self.word_list
 
     def is_word_valid(self, word):
-        return all(letter in self.racks[0] + self.played_letters + self.played_words for letter in word)
-
-
-    def draw_tiles(self, num_tiles):
-        tiles = []
-        for _ in range(num_tiles):
-            if self.tiles:
-                tiles.append(self.tiles.pop())
-        return tiles
+        return all(letter in self.racks[self.active_player] + self.played_letters + self.played_words for letter in word)
+    
+    def clear_used_letters_from_rack(self,word):
+        for letter in word:
+            if letter in self.racks[self.active_player]:
+                self.racks[self.active_player].remove(letter)
 
     def update_rack(self):
         for widget in self.rack_frame.winfo_children():
             widget.destroy()
         self.create_rack()
-
-    def clear_rack(self):
-        self.racks[0] = []
-
-    def draw_new_tiles(self, num_tiles):
-        self.racks[0] += self.draw_tiles(num_tiles)
 
     def place_word_on_board(self, word):
         word_length = len(word)
@@ -196,10 +199,9 @@ class ScrabbleGame:
                 self.board[start_row + i][start_col] = letter
         else:
             return False
-
         self.update_board()
         return True
-    
+
     def calculate_score(self, word):
      score = 0
      word_multiplier = 1
@@ -224,6 +226,8 @@ class ScrabbleGame:
      score *= word_multiplier
      return score
 
+    def clear_rack(self):
+        self.racks[self.active_player] = []
 
     def update_board(self):
         for i in range(15):
@@ -232,9 +236,10 @@ class ScrabbleGame:
 
     def reset_rack(self):
         self.total_letters = 100
-        self.racks[0] = self.draw_tiles(7)
+        self.racks[self.active_player] = self.draw_tiles(7)
         self.update_rack()
         self.remaining_letters_label.config(text=f"Remaining Letters: {self.total_letters}")
+    
 
     def run(self):
         self.current_player = self.players[0]
