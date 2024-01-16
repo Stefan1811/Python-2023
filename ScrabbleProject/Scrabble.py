@@ -164,7 +164,7 @@ class ScrabbleGame:
     def cell_clicked(self, row, col):
         """
         
-        This is a helpind method for player, method wich shows a message box with the cell's coordinates.
+        This is a helping method for player, method wich shows a message box with the cell's coordinates.
         
         """
         messagebox.showinfo("Cell Clicked", f"Clicked on cell at ({row}, {col})")
@@ -371,9 +371,9 @@ class ScrabbleGame:
                     else:
                         score += self.letter_scores.get(letter.upper(), 0)
                     if (i, j) in self.tw:
-                        word_multiplier *= 3
+                        word_multiplier = 3
                     elif (i, j) in self.dw:
-                        word_multiplier *= 2
+                        word_multiplier = 2
 
         score *= word_multiplier
         return score
