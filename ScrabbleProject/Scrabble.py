@@ -181,8 +181,13 @@ class ScrabbleGame:
         """
         old_rack = self.racks[self.active_player]
         number_of_tiles = len(self.racks[self.active_player])
-        self.clear_rack()
-        self.draw_new_tiles(number_of_tiles)
+        if number_of_tiles ==  1:
+            self.draw_new_tiles(number_of_tiles+1)
+        elif number_of_tiles ==  0:
+            self.draw_new_tiles(number_of_tiles+3)
+        else:
+            self.clear_rack()
+            self.draw_new_tiles(number_of_tiles)
         self.update_rack()
         for letter in old_rack:
             self.tiles.append(letter)
@@ -239,7 +244,7 @@ class ScrabbleGame:
         
         """
         word = self.word_entry.get().upper()
-        if word and self.validate_word(word) and self.is_word_valid(word):
+        if word and self.validate_word(word) and self.is_word_valid(word) and word not in self.played_words:
             if self.place_word_on_board(word):
                 score = self.calculate_score(word)
                 self.current_player.score += score
@@ -254,7 +259,7 @@ class ScrabbleGame:
                 print(self.played_letters, self.played_words)
                 if self.current_player.score >= 50:
                   self.end_game()
-                elif self.total_letters == 0 or not self.racks[self.active_player]:
+                elif self.total_letters == 0 and not self.racks[self.active_player]:
                   self.end_game()
                 else:
                   self.switch_player()
